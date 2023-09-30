@@ -23,7 +23,7 @@ end
 function Obs(X::Estimator)
     return Obs(
         L = size(X.ψ0), β = X.β,
-        ST = Accum(zeros(Float64, X.Λ))
+        ST = Accum(zeros(Float64, X.Λ),0)
     )
 end
 
