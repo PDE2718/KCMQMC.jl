@@ -16,13 +16,15 @@ include("accumulator.jl")
     ρleaf::Accum{Float64} = Accum(0.)
     ρflip::Accum{Float64} = Accum(0.)
     Sk::Accum{Matrix{Float64}} = Accum(zeros(Float64, L), 0)
-    ST::Accum{Matrix{Float64}} = Accum(zeros(Float64, L), 0)
+    ST::Accum{Matrix{Float64}}
     ψiψj::Accum{Matrix{Float64}} = Accum(zeros(Float64, N, N), 0)
 end
 
 function Obs(X::Estimator)
     return Obs(
-        L = size(X.ψ0), β = X.β
+        L = size(X.ψ0), β = X.β,
+        ST = Accum(zeros(Float64, X.Λ)
+        )
     )
 end
 
