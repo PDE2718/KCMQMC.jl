@@ -24,7 +24,7 @@ function onestep_measure!(X::Estimator, O::Obs)
     N = prod(size(ψ0))
 
     nwl1::Int64 = X.n ; push!(O.nwl1, nwl1) ; push!(O.nwltrace, nwl1)
-    E = nwl1 / β / N + 1 ; push!(O.E,E)
+    E = - nwl1 / β / N + 1 ; push!(O.E,E)
     nwl2::Int64 = nwl1^2 ; push!(O.nwl2, nwl2)
     Sz1 = X.Sz1 ; push!(O.Sz1, Sz1) ; push!(O.Sz2, X.Sz2)
     ρ = Sz1 / N ; push!(O.ρ, ρ) ; push!(O.ρtrace)
