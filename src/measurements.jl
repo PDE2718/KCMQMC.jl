@@ -36,7 +36,7 @@ function onestep_measure!(X::Estimator, O::Obs)
     
 end
 function track_ψiψj!(X::Estimator, O::Obs)
-    kron!(X.ψiψj, ψ0, ψ0)
+    kron!(X.ψiψj, X.ψ0, X.ψ0)
     push!(O.ψiψj, X.ψiψj)
 end
 function snapshot_ψ!(X::Estimator, O::Obs)
