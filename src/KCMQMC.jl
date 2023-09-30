@@ -11,7 +11,6 @@ include("sweep.jl")
 include("observables.jl")
 include("measurements.jl")
 include("onesimu.jl")
-# include("simubin.jl")
 
 for n in names(@__MODULE__; all=true)
     if Base.isidentifier(n) && n ∉ (Symbol(@__MODULE__), :eval, :include)
