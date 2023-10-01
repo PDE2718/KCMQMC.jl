@@ -11,6 +11,7 @@ mutable struct Op{T<:AbstractLeg} <: AbstractOp
     const leg5::T
     const p::Int
     flag::Int
+    cons::Bool
 end
 
 mutable struct Leg <: AbstractLeg
@@ -66,7 +67,7 @@ unflipable(l::Leg)::Bool = is_center(l) ? ~flipable(l.op) :  is_σx(l)
 # end
 
 function Op(p::Integer)::Op{Leg}
-    h = Op(Leg(1), Leg(2), Leg(3), Leg(4), Leg(5), p, 0)
+    h = Op(Leg(1), Leg(2), Leg(3), Leg(4), Leg(5), p, 0, false)
     for l ∈ h
         l.op = h
     end
@@ -90,7 +91,7 @@ function Base.show(io::IO, l::Leg)
 end
 function Base.show(io::IO, O::Op{Leg})
     if O.flag ≠ 0
-        println(io, "$(O.flag < 0 ? "σx" : "I")($(abs(O.flag))) at p = $(O.p)")
+        println(io, "$(O.cons ? "o" : "x") $(O.flag < 0 ? "σx" : "I ")($(abs(O.flag))) p = $(O.p)")
         for l ∈ O
             println(io, l)
         end
