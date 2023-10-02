@@ -10,7 +10,6 @@ function sweep!(X::Estimator)
     return nothing
 end
 
-
 # function sweep!(H::OpString, legs_first, legs_last, ψ0, Λ, n, β)::Int
 #     n = sweep_diag!(H, legs_first, legs_last, ψ0, Λ, n, β)
 #     for h ∈ H

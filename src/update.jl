@@ -34,7 +34,7 @@ function sweep_diag!(H::OpString, Λ::Int64, n::Int64, β::Float64, ξ::Float64,
     end
     for (p,h) ∈ enumerate(H)
         if h.flag == 0 && metro((N * wtot * β) / (Λ - n))
-            h.flag = rand(1:Nd)
+            h.flag = rand(1:N)
             n += 1
             h.cons = metro(P1)
         elseif h.flag > 0 && metro((Λ - n + 1) / (N * wtot * β))
