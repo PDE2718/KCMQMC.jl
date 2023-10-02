@@ -44,7 +44,7 @@ lastindex(x::Op{Leg}) = 5
 eachindex(x::Op{Leg}) = 1:5
 
 count(x::Op{Leg})::Int = x[1].ψ + x[2].ψ + x[3].ψ + x[4].ψ
-count(l::Leg)::Int = count(x.op)
+count(l::Leg)::Int = count(l.op)
 getproperty(x::Leg, y::Symbol) = hasfield(Leg, y) ? getfield(x, y) : getfield(getfield(x, :op), y)
 setproperty!(x::Leg, y::Symbol, z) = hasfield(Leg, y) ? setfield!(x::Leg, y::Symbol, z) : setfield!(getfield(x, :op), y, z)
 
@@ -67,7 +67,7 @@ unflipable(l::Leg)::Bool = is_center(l) ? ~flipable(l.op) :  is_σx(l)
 # end
 
 function Op(p::Integer)::Op{Leg}
-    h = Op(Leg(1), Leg(2), Leg(3), Leg(4), Leg(5), p, 0, false)
+    h = Op(Leg(1), Leg(2), Leg(3), Leg(4), Leg(5), p, 0, true)
     for l ∈ h
         l.op = h
     end

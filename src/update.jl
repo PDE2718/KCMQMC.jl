@@ -15,36 +15,46 @@ end
 
 ###### diag update
 
-function sweep_diag!(H::OpString, Λ::Int64, n::Int64, β::Float64,
+function sweep_diag!(H::OpString, Λ::Int64, n::Int64, β::Float64, ξ::Float64,
     legs_first::Matrix{Leg}, legs_last::Matrix{Leg}, ψ0::Matrix{Bool}, ψT)
-    L = size(ψ0)
-    Nd::Int = N::Int = length(ψ0)
+    L::Tuple{Int,Int} = size(ψ0)
+    N::Int = length(ψ0)
     iwl = rand(eachindex(ψ0))
 
+    wtot = 1+ξ
+    P1::Float64 = 1/wtot
     Sz::Int64 = sum(ψ0)
     Sz1::Int64 = 0
     Sz2::Int64 = 0
+
+    l::Leg = null_leg
 
     for i ∈ eachindex(legs_first, legs_last)
         legs_first[i] = legs_last[i] = null_leg
     end
     for (p,h) ∈ enumerate(H)
-        if h.flag == 0 && metro((Nd * β) / (Λ - n))
+        if h.flag == 0 && metro((N * wtot * β) / (Λ - n))
             h.flag = rand(1:Nd)
             n += 1
-        elseif h.flag > 0 && metro((Λ - n + 1) / (Nd * β))
+            h.cons = metro(P1)
+        elseif h.flag > 0 && metro((Λ - n + 1) / (N * wtot * β))
             h.flag = 0
             n -= 1
         end
 
         if h.flag ≠ 0
-            i = abs(h.flag)
+            i_site = abs(h.flag)
+            up_range = h.cons ? (1:5) : (5:5)
+            nbs = udlrx(i_site, L)
             if h.flag < 0
-                ψ0[i] ⊻= true
-                Sz += ψ0[i] ? 1 : -1
+                ψ0[i_site] ⊻= true
+                Sz += ψ0[i_site] ? 1 : -1
             end
             # 更新传播过程中的构型
-            for (l, j) ∈ zip(h, udlrx(i, L))
+            for r ∈ up_range
+                l = h[r]
+                j = nbs[r]
+
                 l.ψ = ψ0[j]
                 l.j = j
                 if legs_first[j] === null_leg
