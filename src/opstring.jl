@@ -49,14 +49,18 @@ getproperty(x::Leg, y::Symbol) = hasfield(Leg, y) ? getfield(x, y) : getfield(ge
 setproperty!(x::Leg, y::Symbol, z) = hasfield(Leg, y) ? setfield!(x::Leg, y::Symbol, z) : setfield!(getfield(x, :op), y, z)
 
 is_center(l::Leg)::Bool = l.r == 5
-is_σx(op::Op{Leg})::Bool = op.flag < 0
-is_σx(l::Leg)::Bool = l.flag < 0
+# is_σx(op::Op{Leg})::Bool = op.flag < 0
 
-flipable(h::Op{Leg})::Bool = is_σx(h) || count(h) == 1
-unflipable(h::Op{Leg})::Bool = ~flipable(h)
+flipable(h::Op{Leg})::Bool = (~h.cons) || h.flag<0 || count(h) == 1
+flipable(l::Leg) = is_center(l) ? flipable(l.op) : (l.flag > 0)
 
-flipable(l::Leg)::Bool   = is_center(l) ?  flipable(l.op) : ~is_σx(l)
-unflipable(l::Leg)::Bool = is_center(l) ? ~flipable(l.op) :  is_σx(l)
+# is_σx(l::Leg)::Bool = l.flag < 0
+
+# flipable(h::Op{Leg})::Bool = is_σx(h) || count(h) == 1
+# unflipable(h::Op{Leg})::Bool = ~flipable(h)
+
+# flipable(l::Leg)::Bool   = is_center(l) ?  flipable(l.op) : ~is_σx(l)
+# unflipable(l::Leg)::Bool = is_center(l) ? ~flipable(l.op) :  is_σx(l)
 
 # function unflipable(l::Leg)::Bool
 #     if is_center(l)

@@ -83,13 +83,12 @@ end
 function update_ahead!(h0::Op{Leg})::Bool
     # ensure the entrance is a center
     # I0 cannot flip
-    if h0.flag == 0 || unflipable(h0)
-        return false
-    else # the entrance is flipable
+    if h0.flag ≠ 0 && flipable(h0) # the entrance is flipable
+
         tail::Leg = head::Leg = h0[5]
         while true
             head = head.next
-            if head |> flipable
+            if flipable(head)
                 is_center(head) ? break : continue
             else
                 return false
@@ -108,6 +107,9 @@ function update_ahead!(h0::Op{Leg})::Bool
         else
             return false
         end
+
+    else
+        return false
     end
 end
 
