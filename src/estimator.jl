@@ -7,6 +7,8 @@ mutable struct Estimator
     const Λ::Int64
     n::Int64
     β::Float64
+    ξ::Float64
+    ######################## Sz buffers
     Sz1::Float64
     Sz2::Float64
     ######################## observable buffers
@@ -23,7 +25,9 @@ function Estimator(ψ0::Matrix{Bool}, Λ::Int64)
         null_legs(ψ0),
         deepcopy(ψ0),
         #
-        Λ, 0, 1.0, 0.0, 0.0,
+        Λ, 0, 1.0, 1.0,
+        #
+        0.0, 0.0,
         # 
         zeros(ComplexF64, size(ψ0)),
         zeros(Float64, size(ψ0)),

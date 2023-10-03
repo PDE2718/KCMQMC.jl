@@ -20,11 +20,11 @@ function only_track_trace!(X::Estimator, O::Obs)
     push!(O.nwltrace, X.n)
 end
 function onestep_measure!(X::Estimator, O::Obs)
-    ψ0, ψk, Sk, ψT, ST, β = X.ψ0, X.ψk, X.Sk, X.ψT, X.ST, X.β
+    ψ0, ψk, Sk, ψT, ST, β, ξ = X.ψ0, X.ψk, X.Sk, X.ψT, X.ST, X.β, X.ξ
     N = prod(size(ψ0))
 
     nwl1::Int64 = X.n ; push!(O.nwl1, nwl1) ; push!(O.nwltrace, nwl1)
-    E = - nwl1 / β / N + 1 ; push!(O.E,E)
+    E = - nwl1 / β / N + 1 + ξ ; push!(O.E,E)
     nwl2::Int64 = nwl1^2 ; push!(O.nwl2, nwl2)
     Sz1 = X.Sz1 ; push!(O.Sz1, Sz1) ; push!(O.Sz2, X.Sz2)
     ρ = Sz1 / N ; push!(O.ρ, ρ) ; push!(O.ρtrace)
@@ -36,13 +36,13 @@ function onestep_measure!(X::Estimator, O::Obs)
     
 end
 function track_ψiψj!(X::Estimator, O::Obs)
-    kron!(X.ψiψj, X.ψ0, X.ψ0)
+    ψt = view(X.ψ0,:)
+    kron!(view(X.ψiψj,:), ψt, ψt)
     push!(O.ψiψj, X.ψiψj)
 end
 function snapshot_ψ!(X::Estimator, O::Obs)
     push!(O.ψsnapshots, X.ψ0 .== true)
 end
-
 
 # # energy
 # obs_E(nwl, β, N) = -nwl / β / N + 1
