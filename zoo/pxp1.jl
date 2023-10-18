@@ -6,72 +6,67 @@ using Plots, Measures, LaTeXStrings
 # plot(Ob1.ρtrace)
 
 # Ob1 = onesimu((4, 4), 10.0, randsector((4, 4), 1); tth=10000, ts=20000)
-
 L = (16, 16)
-β = 16.0
-ξmax = 0.2
-ξmin = 0.2/β
+β = 24.0
 # sec = randsector(L, 30)
-tth = 5000
-ts = 40000
-Λ = ceil(Int, prod(L) * β * 2)
+tth = 20_000
+ts = 20_000
+Λ = ceil(Int, prod(L) * β * 10.0)
 X = Estimator(zeros(Bool, L), Λ)
-X.ξ = ξmin
-# for c ∈ sec
-#     X.ψ0[c] = true
-# end
-# X.ψ0 .= rand(L) .< 0.3
-X.ψ0[1] = true
-# for i ∈ 1:2:L[1], j ∈ 1:2:L[2]
-#     if ~(isodd(i ÷ 2) ⊻ isodd(j ÷ 2))
-#         X.ψ0[i, j] = true
-#     end
-# end
-heatmap(X.ψ0)
+X.β = β
+X.μ = -3.0
+X.ξ = 0.005
 
 Ob = Obs(X)
-X.β = β
-@showprogress for t ∈ 1:tth
-    X.β = annealing(t, β, tth)
-    # X.β = (t/tth) * β
-    X.ξ = (1-t/tth) * ξmax + ξmin
-    sweep!(X)
-    only_track_trace!(X, Ob)
-    if t % 100 == 0
-        snapshot_ψ!(X, Ob)
+# μgrid = vcat([fill(μ, 1000) for μ ∈ -3.0:0.1:2.5]...)
+# μgrid = vcat(μ1,μ2)
+tmax = 100_000
+tgrid = 1:tmax
+μgrid = LinRange(-3,2.5,tmax)
+μgrids = repeat([μgrid,reverse(μgrid)],3)
+for μgrid ∈ μgrids
+    @showprogress for μ ∈ μgrid
+        X.μ = μ
+        sweep!(X)
+        only_track_trace!(X, Ob)
     end
 end
-heatmap(X.ψ0, aspect_ratio=:equal, size = [300,300], colorbar=false)
-X.β = β
-X.ξ = ξ
-Ob.ρtrace |> plot
-X.H
+ρgrids = [Ob.ρtrace[(i*tmax).+tgrid] for i ∈ 0:5]
+
+Etrace = -Ob.nwltrace./(β*prod(L)) .+ μshift.(μgrid)
+binn(x,Lbin=50) = mean(x[i:Lbin:end] for i ∈ 1:Lbin)
+plot(μgrid |> binn, Etrace |> binn)
+plot(μgrid |> binn, Ob.nwltrace |> binn)
+plot(binn.(μgrids), binn.(ρgrids))
+
+plot([μgrid[1:tmax], μgrid[tmax+1:end]],
+    [Ob.ρtrace[1:tmax],Ob.ρtrace[tmax+1:end]],
+    # ylims = (0.3,0.35)
+)
+# heatmap(X.ψ0, aspect_ratio=:equal, size = [300,300], colorbar=false)
+plt1 = plot(Ob.ρtrace)
+plt2 = plot(μgrid)
+plt = plot(plt1,plt2)
+
+mean(Ob.ρtrace)
 
 @showprogress for t ∈ 1:ts
     sweep!(X)
     onestep_measure!(X, Ob)
-    if t % 100 == 0
-        snapshot_ψ!(X, Ob)
-        track_ψiψj!(X, Ob)
-    end
+    # if t % 100 == 0
+    #     snapshot_ψ!(X, Ob)
+    #     track_ψiψj!(X, Ob)
+    # end
 end
-ρ̄ = mean(Ob.ρ)
+# Ob.ρtrace |> plot
 # mean(mean.(Ob.ψsnapshots[end÷2:end]))
 mean(Ob.E)
+ρ̄ = mean(Ob.ρ)
 
-###
-ST = mean(Ob.ST)
-# ST[1] = 0
-Sτ = real.(bfft(ST)) ./ length(ST)^2
-Sτ .-= ρ̄^2
-τgrid = LinRange(0.0, β, length(Sτ) + 1)
-push!(Sτ, Sτ[1])
-# plot(τgrid, Sτ, ylims=(0, 0.25))
-plot(τgrid, Sτ)
-
-heatmap(Ob.ψsnapshots[end])
+X.n
+# heatmap(Ob.ψsnapshots[end])
 Skbar = mean(Ob.Sk)
-# Skbar[1] = 0
+Skbar[1] = 0
 heatmap(pbcfill(Skbar), aspect_ratio=:equal)
 Cij = real.(bfft(Skbar)) ./ prod(L)^2 .- ρ̄^2
 heatmap(pbcfill(Cij))
@@ -96,14 +91,14 @@ end
 @showprogress for t ∈ 1:1000
     sweep!(X)
     push!(ψss, deepcopy(X.ψ0))
-    # onestep_measure!(X, Ob)
-    # if t % 100 == 0
-    #     snapshot_ψ!(X, Ob)
-    #     track_ψiψj!(X, Ob)
-    # end
+    onestep_measure!(X, Ob)
+    if t % 100 == 0
+        snapshot_ψ!(X, Ob)
+        # track_ψiψj!(X, Ob)
+    end
 end
 
-t_mean = 40
+t_mean = 10
 ij00 = (1,1)
 mag = 1
 ani = @animate for i ∈ 1:2:1000-t_mean

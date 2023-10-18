@@ -44,6 +44,7 @@ eachindex(x::Op{Leg}) = 1:5
 
 count(x::Op{Leg})::Int = x[1].ψ + x[2].ψ + x[3].ψ + x[4].ψ
 count(l::Leg)::Int = count(l.op)
+
 getproperty(x::Leg, y::Symbol) = hasfield(Leg, y) ? getfield(x, y) : getfield(getfield(x, :op), y)
 setproperty!(x::Leg, y::Symbol, z) = hasfield(Leg, y) ? setfield!(x::Leg, y::Symbol, z) : setfield!(getfield(x, :op), y, z)
 
@@ -103,3 +104,11 @@ function Base.show(io::IO, O::Op{Leg})
         println(io, "I0 at p = $(O.p)")
     end
 end
+
+confsign(ψ::Bool, c::Bool) = c ? (ψ ? '⬓' : '⬒') : (ψ ? '■' : '□')
+confsign(l::Leg, c::Bool) = confsign(l.ψ, c)
+confsign(x::Op{Leg}, r::Int)::String = """
+    ⋅ $(confsign(x[1], 1==r)) ⋅
+    $(confsign(x[3], 3==r)) $(confsign(x[5], 5==r)) $(confsign(x[4], 4==r))
+    ⋅ $(confsign(x[2], 2==r)) ⋅
+"""

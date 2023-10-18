@@ -1,11 +1,12 @@
 function sweep!(X::Estimator)
     H = X.H
     ψ0 = X.ψ0
+    β, ξ, μ = X.β, X.ξ, X.μ
     X.n, X.Sz1, X.Sz2 = sweep_diag!(H,
-        X.Λ, X.n, X.β, X.ξ,
+        X.Λ, X.n, β, ξ, μ,
         X.legs_first, X.legs_last, ψ0, X.ψT
     )
-    sweep_off!(H)
+    sweep_off!(H, ξ, μ)
     update_ψ0!(ψ0, X.legs_last)
     return nothing
 end
