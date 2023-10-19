@@ -19,12 +19,21 @@ end
 diag_weight(ψ::Bool, μ::Float64)::Float64 = μshift(μ) + μ * ψ
 offdiag_weight(cnt::Int, ξ::Float64)::Float64 = cnt == 1 ? (1.0-ξ) : ξ
 
-function sweep_diag!(H::OpString, Λ::Int64, n::Int64, β::Float64,
-    ξ::Float64, μ::Float64,
-    legs_first::Matrix{Leg}, legs_last::Matrix{Leg}, ψ0::Matrix{Bool}, ψT)
-
+function sweep_diag!(X::Estimator)
+    X.n, X.Sz1, X.Sz2 = sweep_diag!(X.H,
+        X.n, X.β, X.ξ, X.μ,
+        X.legs_first, X.legs_last,
+        X.ψ0,
+    )
+end
+function sweep_diag!(H::OpString,
+    n::Int64, β::Float64, ξ::Float64, μ::Float64,
+    legs_first::Matrix{Leg},legs_last::Matrix{Leg},
+    ψ0::Matrix{Bool}
+    )
     L::Tuple{Int,Int} = size(ψ0)
     N::Int = length(ψ0)
+    Λ::Int = length(H)
     # iwl::Int = rand(eachindex(ψ0))
     
     # ic::Int = 0 # index of center
@@ -38,7 +47,7 @@ function sweep_diag!(H::OpString, Λ::Int64, n::Int64, β::Float64,
     for i ∈ eachindex(legs_first, legs_last)
         legs_first[i] = legs_last[i] = null_leg
     end
-    for (p,h) ∈ enumerate(H)
+    @inbounds for h ∈ H
         # insert diagonal operator
         if h.flag == 0
             ic = rand(1:N)
@@ -157,10 +166,17 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
 end
 
-function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    for h ∈ H
-        update_ahead!(h, ξ, μ)
-        update_ahead!(rand(H), ξ, μ)
-    end
-    return nothing
+function sweep_off!(X::Estimator)
+    sweep_off!(X.H, X.ξ, X.μ)
+    update_ψ0!(X.ψ0, X.legs_last)
 end
+function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
+    @inbounds for h ∈ H
+        update_ahead!(h, ξ, μ)
+    end
+end
+# function sweep_off_backward!(H::OpString, ξ::Float64, μ::Float64)
+#     for i ∈ reveachindex(H)
+#         update_ahead!(H[i], ξ, μ)
+#     end
+# end

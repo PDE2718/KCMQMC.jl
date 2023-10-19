@@ -12,6 +12,7 @@ L = (16, 16)
 tth = 20_000
 ts = 20_000
 Λ = ceil(Int, prod(L) * β * 10.0)
+6000
 X = Estimator(zeros(Bool, L), Λ)
 X.β = β
 X.μ = -3.0
@@ -32,17 +33,30 @@ for μgrid ∈ μgrids
     end
 end
 ρgrids = [Ob.ρtrace[(i*tmax).+tgrid] for i ∈ 0:5]
+Egrids = -Ob.nwltrace./(β*prod(L)) .+ μshift.(vcat(μgrids...))
+Egrids = [Egrids[(i*tmax).+tgrid] for i ∈ 0:5]
 
-Etrace = -Ob.nwltrace./(β*prod(L)) .+ μshift.(μgrid)
-binn(x,Lbin=50) = mean(x[i:Lbin:end] for i ∈ 1:Lbin)
+binn(x,Lbin=10) = mean(x[i:Lbin:end] for i ∈ 1:Lbin)
 plot(μgrid |> binn, Etrace |> binn)
 plot(μgrid |> binn, Ob.nwltrace |> binn)
-plot(binn.(μgrids), binn.(ρgrids))
 
-plot([μgrid[1:tmax], μgrid[tmax+1:end]],
-    [Ob.ρtrace[1:tmax],Ob.ρtrace[tmax+1:end]],
-    # ylims = (0.3,0.35)
+using Plots, Measures, LaTeXStrings
+default(framestyle = :box)
+plt1 = plot(binn.(μgrids), binn.(ρgrids),lw = 2, lc = [1 2], label = ["→" "←"],
+    xlims = (-3,3), ylims = (0,1),
+    title = "L=$(L), β=$(β), ", 
+    xlabel = "μ", ylabel = "n",
 )
+plt2 = plot(binn.(μgrids), binn.(Egrids),
+    lw=2, lc=[1 2], label=["→" "←"],
+    xlims=(-3, 3),
+    title="L=$(L), β=$(β), ",
+    xlabel="μ", ylabel="E",
+)
+
+plot(Ob.nwltrace)
+
+
 # heatmap(X.ψ0, aspect_ratio=:equal, size = [300,300], colorbar=false)
 plt1 = plot(Ob.ρtrace)
 plt2 = plot(μgrid)

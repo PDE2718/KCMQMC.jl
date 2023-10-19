@@ -3,8 +3,10 @@ include("accumulator.jl")
 @with_kw_noshow struct Obs
     L::Tuple{Int64,Int64}
     β::Float64
-    ψsnapshots::Vector{BitMatrix} = BitMatrix[]
+    ξ::Float64
+    μ::Float64
     N::Int64 = prod(L)
+    ψsnapshots::Vector{BitMatrix} = BitMatrix[]
     nwltrace::Vector{Int64} = Int64[]
     ρtrace::Vector{Float64} = Float64[]
     E::Accum{Float64} = Accum(0.0)
@@ -16,34 +18,11 @@ include("accumulator.jl")
     ρleaf::Accum{Float64} = Accum(0.)
     ρflip::Accum{Float64} = Accum(0.)
     Sk::Accum{Matrix{Float64}} = Accum(zeros(Float64, L), 0)
-    ST::Accum{Vector{Float64}}
-    ψiψj::Accum{Matrix{Float64}} = Accum(zeros(Float64, N, N), 0)
 end
 
-function Obs(X::Estimator)
-    return Obs(
-        L = size(X.ψ0), β = X.β,
-        ST = Accum(zeros(Float64, X.Λ),0)
-    )
-end
-
-# @with_kw_noshow mutable struct Obs
-#     para::Union{Tuple,NamedTuple}
-#     ψ0::AbstractArray{Bool}
-#     ntrace::Vector{Float64} = Float64[]
-#     Nwl::Float64 = 0.0
-#     Nwl2::Float64 = 0.0
-#     Nσx::Float64 = 0.0
-#     E::Float64 = 0.0
-#     ρ::Float64 = 0.0
-#     ρ2::Float64 = 0.0
-#     ρflip::Float64 = 0.0
-#     ρleaf::Float64 = 0.0
-#     Sk::Matrix{Float64} = zeros(para[1])
-#     ninj::Matrix{Float64} = zeros(para[1])
-# end
-
-
+Obs(X::Estimator) = Obs(
+    L=size(X.ψ0), β=X.β, ξ=X.ξ, μ=X.μ
+)
 
 ###################################test
 # using LinearAlgebra

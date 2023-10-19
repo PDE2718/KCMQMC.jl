@@ -96,7 +96,7 @@ function Base.show(io::IO, l::Leg)
 end
 function Base.show(io::IO, O::Op{Leg})
     if O.flag ≠ 0
-        println(io, "$(O.cons ? "o" : "x") $(O.flag < 0 ? "σx" : "I ")($(abs(O.flag))) p = $(O.p)")
+        println(io, "$(O.flag < 0 ? "σx" : "μ ")($(abs(O.flag))) p = $(O.p)")
         for l ∈ O
             println(io, l)
         end
