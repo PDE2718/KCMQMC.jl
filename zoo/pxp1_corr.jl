@@ -11,9 +11,9 @@ tbin = 5_000
 nbin = 1
 Λ = ceil(Int, prod(L) * β * 1)
 X = Estimator(zeros(Bool, L), Λ)
-# for i ∈ eachindex(X.ψ0)
-#     X.ψ0[i] = metro(0.2)
-# end
+for i ∈ eachindex(X.ψ0)
+    X.ψ0[i] = metro(0.1)
+end
 X.β = β ; X.μ = μ ; X.ξ = ξ
 # X.ψ0 .= rand(Bool, size(X.ψ0))
 
