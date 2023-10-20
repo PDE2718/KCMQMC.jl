@@ -170,11 +170,23 @@ function sweep_off!(X::Estimator)
     sweep_off!(X.H, X.ξ, X.μ)
     update_ψ0!(X.ψ0, X.legs_last)
 end
+
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     @inbounds for h ∈ H
         update_ahead!(h, ξ, μ)
     end
 end
+
+function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
+    wl = eachindex(H)
+    l = zip(wl , reverse(wl))
+    @inbounds for (i,j) ∈ l
+        update_ahead!(
+            H[rand((i,j,rand(wl)))],
+            ξ, μ)
+    end
+end
+
 # function sweep_off_backward!(H::OpString, ξ::Float64, μ::Float64)
 #     for i ∈ reveachindex(H)
 #         update_ahead!(H[i], ξ, μ)

@@ -12,7 +12,6 @@ using Parameters
     ρflip::Float64 = 0.0
     ρleaf::Float64 = 0.0
     Sk::Matrix{Float64} = zeros(para[1])
-    ninj::Matrix{Float64} = zeros(para[1])
 end
 
 function simubin(para::Union{Tuple,NamedTuple})
