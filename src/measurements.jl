@@ -32,7 +32,6 @@ function onestep_measure!(X::Estimator, O::Obs)
     push!(O.ρleaf, ρleaf) ; push!(O.ρflip, ρflip)
 
     ψk .= ψ0 ; fft!(ψk) ; map!(abs2, Sk, ψk) ; push!(O.Sk, Sk)
-
 end
 
 function snapshot_ψ!(X::Estimator, O::Obs)

@@ -4,7 +4,7 @@ function sweep!(X::Estimator)
     return nothing
 end
 
-function check_increment!(X::Estimator)
+function check_increment!(X::Estimator; verbose::Bool=false)
     Λ0::Int = length(X.H)
     Λtol::Int = ceil(Int, X.n * 1.2)
     Λt::Int = ceil(Int, 1.3*Λ0)
@@ -12,7 +12,9 @@ function check_increment!(X::Estimator)
         for p ∈ (Λ0+1):Λt
             push!(X.H, Op(p))
         end
-        println("increase string length, n/Λ = $(X.n / length(X.H))")
+        if verbose
+            println("increase string length, n/Λ = $(X.n / length(X.H))")
+        end
     end
     return nothing
 end
