@@ -102,8 +102,8 @@ end
 
 function wf2wi_tailhead(l::Leg, ξ::Float64, μ::Float64, istail::Bool)::Float64
     ψ0::Bool = l.ψ ⊻ (istail && l.flag < 0)
-    wμj::Float64 = diag_weight(ψ0, μ)
     wσx::Float64 = offdiag_weight(count(l), ξ)
+    wμj::Float64 = diag_weight(ψ0, μ)
     return l.flag < 0 ? (wμj / wσx) : (wσx / wμj)
 end
 function wf2wi_wormbody(l::Leg, ξ::Float64)::Float64
@@ -139,31 +139,34 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
     tail::Leg = head::Leg = h0[5]
     wr::Float64 = 1.0
-    while true
+    while wr ≠ 0.0
         head = head.next
-        if is_center(head)
+        if is_center(head) # end this segment anyway
             if head == tail
                 wr *= wf2wi_cyclic(head, μ)
             else
                 wr *= wf2wi_tailhead(tail, ξ, μ, true)
                 wr *= wf2wi_tailhead(head, ξ, μ, false)
             end
-            metro(wr) ? break : return false
+            if metro(wr)
+                ## finally update the configuration
+                head.flag *= -1
+                tail.flag *= -1
+                while true
+                    tail.ψ ⊻= true
+                    tail = tail.next
+                    if tail == head
+                        return true
+                    end
+                end
+            else
+                return false
+            end
         else
             wr *= wf2wi_wormbody(head, ξ)
         end
     end
-
-    ## finally update the configuration
-    head.flag *= -1
-    tail.flag *= -1
-    while true
-        tail.ψ ⊻= true
-        tail = tail.next
-        if tail == head
-            return true
-        end
-    end
+    return false
 end
 
 function sweep_off!(X::Estimator)
