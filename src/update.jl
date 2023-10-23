@@ -139,7 +139,7 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
     tail::Leg = head::Leg = h0[5]
     wr::Float64 = 1.0
-    while wr ≠ 0.0
+    while ~iszero(wr)
         head = head.next
         if is_center(head) # end this segment anyway
             if head == tail
