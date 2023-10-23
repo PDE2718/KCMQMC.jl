@@ -16,7 +16,7 @@ function linear_annealing(t, β, ξ, τ)
     else
         x = clamp(t / τ, 0, 1)
         βt = (1-x) * 0.1β + x * β
-        ξt = ξ == 0.0 ? 0.0 : ((1-x) * 0.1 + x * ξ)
+        ξt = iszero(ξ) ? ξ : ((1-x) * 0.1 + x * ξ)
         return (βt, ξt)
     end
 end
