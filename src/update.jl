@@ -134,37 +134,46 @@ end
 function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     # ensure the entrance is a center
     # I0 cannot flip
-    if h0.flag == 0
-        return false
-    end
+    if h0.flag == 0 return false end
     tail::Leg = head::Leg = h0[5]
     wr::Float64 = 1.0
-    while ~iszero(wr)
+    
+    # Find the worm body
+    while true
         head = head.next
         if is_center(head) # end this segment anyway
-            if head == tail
-                wr *= wf2wi_cyclic(head, μ)
-            else
-                wr *= wf2wi_tailhead(tail, ξ, μ, true)
-                wr *= wf2wi_tailhead(head, ξ, μ, false)
-            end
-            if metro(wr)
-                ## finally update the configuration
-                head.flag *= -1
-                tail.flag *= -1
-                while true
-                    tail.ψ ⊻= true
-                    tail = tail.next
-                    if tail == head
-                        return true
-                    end
-                end
-            else
-                return false
-            end
+            break
         else
             wr *= wf2wi_wormbody(head, ξ)
+            if wr == 0 return false end
         end
+    end
+
+    if head == tail
+        if iszero(ξ) && count(head) ≠ 1
+            return false
+        else
+            wr *= wf2wi_cyclic(head, μ)
+        end
+    else
+        wr *= wf2wi_tailhead(tail, ξ, μ, true)
+        wr *= wf2wi_tailhead(head, ξ, μ, false)
+    end
+
+    # now flip the segment
+    if metro(wr)
+        ## finally update the configuration
+        head.flag *= -1
+        tail.flag *= -1
+        while true
+            tail.ψ ⊻= true
+            tail = tail.next
+            if tail == head
+                return true
+            end
+        end
+    else
+        return false
     end
     return false
 end
@@ -194,9 +203,3 @@ function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
         update_ahead!(h, ξ, μ)
     end
 end
-
-# function sweep_off_backward!(H::OpString, ξ::Float64, μ::Float64)
-#     for i ∈ reveachindex(H)
-#         update_ahead!(H[i], ξ, μ)
-#     end
-# end
