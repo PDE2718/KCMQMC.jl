@@ -190,7 +190,6 @@ end
 #     end
 # end
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    l = zip(wl, reverse(wl))
     @inbounds for h ∈ H
         update_ahead!(h, ξ, μ)
     end
