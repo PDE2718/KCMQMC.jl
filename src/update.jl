@@ -180,13 +180,19 @@ function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     end
 end
 
+# function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
+#     wl = eachindex(H)
+#     l = zip(wl , reverse(wl))
+#     @inbounds for (i,j) ∈ l
+#         update_ahead!(
+#             H[rand((i,j,rand(wl)))],
+#             ξ, μ)
+#     end
+# end
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    wl = eachindex(H)
-    l = zip(wl , reverse(wl))
-    @inbounds for (i,j) ∈ l
-        update_ahead!(
-            H[rand((i,j,rand(wl)))],
-            ξ, μ)
+    l = zip(wl, reverse(wl))
+    @inbounds for h ∈ H
+        update_ahead!(h, ξ, μ)
     end
 end
 
