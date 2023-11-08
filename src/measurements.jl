@@ -19,23 +19,39 @@ function track_trace!(X::Estimator, O::Obs)
     push!(O.ρtrace, X.Sz1 / O.N)
     push!(O.nwltrace, X.n)
 end
-function onestep_measure!(X::Estimator, O::Obs)
+
+function onestep_measure!(X::Estimator, O::Obs; record_leaf::Bool=false)
     ψ0, ψk, Sk, β, ξ, μ = X.ψ0, X.ψk, X.Sk, X.β, X.ξ, X.μ
-    @assert O.L == size(ψ0)
+
     N = length(ψ0)
-    nwl1::Int64 = X.n ; push!(O.nwl1, nwl1) ; push!(O.nwltrace, nwl1)
+    
+    # record the world line number and energy
+    nwl1::Int64 = X.n ; push!(O.nwl1, nwl1)
     E = - nwl1 / β / N + μshift(μ) ; push!(O.E,E)
+    # for specific heat
     nwl2::Int64 = nwl1^2 ; push!(O.nwl2, nwl2)
+
+    # magnetization
     Sz1 = X.Sz1 ; push!(O.Sz1, Sz1) ; push!(O.Sz2, X.Sz2)
-    ρ = Sz1 / N ; push!(O.ρ, ρ) ; push!(O.ρtrace, ρ)
-    ρflip, ρleaf = obs_leaves(ψ0)
-    push!(O.ρleaf, ρleaf) ; push!(O.ρflip, ρflip)
+    
+    # density
+    ρ = Sz1 / N ; push!(O.ρ, ρ) ;
 
-    ψk .= ψ0 ; fft!(ψk) ; map!(abs2, Sk, ψk) ; push!(O.Sk, Sk)
+    # real space mean and the structure factor
+    ψk .= ψ0
+    push!(O.ψ̄, ψk)
+    fft!(ψk) ; map!(abs2, Sk, ψk) ; push!(O.Sk, Sk)
+
+    # record the number of leaves.
+    if record_leaf
+        ρflip, ρleaf = obs_leaves(ψ0)
+        push!(O.ρleaf, ρleaf) ; push!(O.ρflip, ρflip)
+    end
+    return nothing
 end
-
 function snapshot_ψ!(X::Estimator, O::Obs)
     push!(O.ψsnapshots, X.ψ0 .== true)
+    return nothing
 end
 
 obs_ninj(Sk::Matrix{Float64})::Matrix{Float64} = real.(bfft(Sk)) ./ (length(Sk)^2)
@@ -69,7 +85,6 @@ end
 #     kron!(view(X.ψiψj,:), ψt, ψt)
 #     push!(O.ψiψj, X.ψiψj)
 # end
-
 
 # # energy
 # obs_E(nwl, β, N) = -nwl / β / N + 1

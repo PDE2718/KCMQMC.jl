@@ -1,6 +1,7 @@
 include("accumulator.jl")
 
-@with_kw_noshow struct Obs
+Base.@kwdef struct Obs
+    t::Int64
     L::Tuple{Int64,Int64}
     β::Float64
     ξ::Float64
@@ -18,28 +19,9 @@ include("accumulator.jl")
     ρleaf::Accum{Float64} = Accum(0.)
     ρflip::Accum{Float64} = Accum(0.)
     Sk::Accum{Matrix{Float64}} = Accum(zeros(Float64, L), 0)
+    ψ̄::Accum{Matrix{Float64}} = Accum(zeros(Float64, L), 0)
 end
 
-Obs(X::Estimator) = Obs(
+Obs(X::Estimator, t::Int64=0) = Obs(t,
     L=size(X.ψ0), β=X.β, ξ=X.ξ, μ=X.μ
 )
-
-###################################test
-# using LinearAlgebra
-
-# ψt = (rand(Bool, 48, 48))
-# ψiψj = rand(Bool,length(ψt), length(ψt))
-# using BenchmarkTools
-
-# function calψij(ψiψj, ψt)
-#     for i ∈ eachindex(ψt)
-#         for j ∈ eachindex(ψt)
-#             ψiψj[i,j] = ψt[i]*ψt[j]
-#         end
-#     end
-# end
-# @btime calψij(ψiψj,ψt)
-
-# @btime kron!(ψiψj, ψt, ψt)
-
-
