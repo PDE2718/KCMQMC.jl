@@ -1,6 +1,4 @@
-using Parameters
-
-@with_kw_noshow mutable struct Obs
+Base.@kwdef mutable struct Obs
     para::Union{Tuple,NamedTuple}
     ψ0::AbstractArray{Bool}
     ntrace::Vector{Float64} = Float64[]

@@ -1,6 +1,6 @@
 module KCMQMC
 
-using LinearAlgebra, FFTW, Parameters
+using LinearAlgebra, FFTW
 include("utils.jl")
 include("lattice.jl")
 include("tempering.jl")

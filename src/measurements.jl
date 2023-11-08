@@ -78,22 +78,3 @@ function pbcgrid(A)
     @assert isodd(n)
     return -(n ÷ 2):(n÷2)
 end
-
-
-# function track_ψiψj!(X::Estimator, O::Obs)
-#     ψt = view(X.ψ0,:)
-#     kron!(view(X.ψiψj,:), ψt, ψt)
-#     push!(O.ψiψj, X.ψiψj)
-# end
-
-# # energy
-# obs_E(nwl, β, N) = -nwl / β / N + 1
-
-# # density
-# obs_n̄(ψ) = mean(ψ)
-
-# # Structural factor
-# obs_Sk(ψ)::Matrix{Float64} = abs2.(fft(ψ))
-
-# # correlation function
-# obs_ninj(ψ::AbstractArray{Bool})::Matrix{Float64} = real.(bfft(obs_Sk(ψ))) ./ (length(ψ)^2)
