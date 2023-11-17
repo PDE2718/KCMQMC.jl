@@ -3,6 +3,7 @@ mutable struct Estimator
     const legs_first::Matrix{Leg}
     const legs_last::Matrix{Leg}
     const ψ0::Matrix{Bool}
+    const ψt::Matrix{Bool}
     ######################## numbers
     n::Int64
     β::Float64
@@ -21,8 +22,9 @@ function Estimator(ψ0::Matrix{Bool}, Λ0::Int64)
         null_legs(ψ0),
         null_legs(ψ0),
         deepcopy(ψ0),
+        deepcopy(ψ0),
         #
-        0, 1.0, 0.1, 0.1,
+        0, 0.0, 0.0, 0.0,
         #
         0.0, 0.0,
         # 
