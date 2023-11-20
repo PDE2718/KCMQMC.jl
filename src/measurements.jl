@@ -47,7 +47,7 @@ function onestep_measure!(X::Estimator, O::Obs;
 
     # real space mean and the structure factor
     ψk .= ψ0
-    push!(O.ψ̄, ψk)
+    push!(O.ψ̄, ψ0)
     fft!(ψk) ; map!(abs2, Sk, ψk) ; push!(O.Sk, Sk)
 
     # record optional date
