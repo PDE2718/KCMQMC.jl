@@ -16,11 +16,19 @@ function obs_leaves(ψ)::Tuple{Float64,Float64}
 end
 
 function track_trace!(X::Estimator, O::Obs)
-    push!(O.ρtrace, X.Sz1 / O.N)
+    push!(O.ρtrace, X.Sz1 / prod(O.L))
     push!(O.nwltrace, X.n)
 end
+function snapshot_ψ!(X::Estimator, O::Obs)
+    push!(O.ψsnapshots, X.ψ0 .== true)
+    return nothing
+end
 
-function onestep_measure!(X::Estimator, O::Obs; record_leaf::Bool=false)
+function onestep_measure!(X::Estimator, O::Obs;
+    track_trace::Bool=false,
+    take_snapshot::Bool=false,
+    record_leaf::Bool=false,
+    )
     ψ0, ψk, Sk, β, ξ, μ = X.ψ0, X.ψk, X.Sk, X.β, X.ξ, X.μ
 
     N = length(ψ0)
@@ -42,15 +50,18 @@ function onestep_measure!(X::Estimator, O::Obs; record_leaf::Bool=false)
     push!(O.ψ̄, ψk)
     fft!(ψk) ; map!(abs2, Sk, ψk) ; push!(O.Sk, Sk)
 
-    # record the number of leaves.
+    # record optional date
+    if track_trace
+        push!(O.ρtrace, ρ)
+        push!(O.nwltrace, X.n)
+    end
+    if take_snapshot
+        push!(O.ψsnapshots, X.ψ0 .== true)
+    end 
     if record_leaf
         ρflip, ρleaf = obs_leaves(ψ0)
         push!(O.ρleaf, ρleaf) ; push!(O.ρflip, ρflip)
     end
-    return nothing
-end
-function snapshot_ψ!(X::Estimator, O::Obs)
-    push!(O.ψsnapshots, X.ψ0 .== true)
     return nothing
 end
 
