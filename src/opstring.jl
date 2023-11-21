@@ -78,13 +78,13 @@ function Op(p::Integer)::Op{Leg}
     end
     return h
 end
-global const null_leg::Leg = Leg(0)
-# global const null_op::Op = Op(fill(null_leg,5)..., 0, 0)
-global const OpString::Type = Vector{Op{Leg}}
-null_legs(ψ0::AbstractArray{Bool}) = [null_leg for _ ∈ ψ0]
+
+# global const null_leg::Leg = Leg(0)
+MaybeLeg::Type = Union{Leg, Nothing}
+OpString::Type = Vector{Op{Leg}}
+null_legs(ψ0::AbstractArray{Bool}) = MaybeLeg[nothing for _ ∈ ψ0]
 
 ## How to display the OpString
-
 function Base.show(io::IO, l::Leg)
     if !isdefined(l, :op)
         print(io, " leg NULL")

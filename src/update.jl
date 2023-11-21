@@ -1,16 +1,9 @@
-function update_ψ0!(ψ0::Matrix{Bool}, legs_last::Matrix{Leg})
-    for (i, l) ∈ enumerate(legs_last)
-        if l != null_leg
-            ψ0[i] = l.ψ
+function update_ψ0!(ψ0::Matrix{Bool}, legs_last::Matrix{MaybeLeg})
+    for i ∈ eachindex(ψ0, legs_last)
+        if legs_last[i] isa Leg
+            ψ0[i] = legs_last[i].ψ
         end
     end
-end
-
-function clear_string!(H::OpString)
-    for h ∈ H
-        h.flag = 0
-    end
-    return nothing
 end
 
 function clear_estimator!(X::Estimator, ψ00::Matrix{Bool})
@@ -19,8 +12,8 @@ function clear_estimator!(X::Estimator, ψ00::Matrix{Bool})
     for h ∈ X.H
         h.flag = 0
     end
-    for i ∈ eachindex(X.legs_first, X.legs_last)
-        X.legs_first[i] = X.legs_last[i] = null_leg
+    for i ∈ zip(X.legs_first, X.legs_last)
+        X.legs_first[i] = X.legs_last[i] = nothing
     end
     return nothing
 end
@@ -40,25 +33,21 @@ function sweep_diag!(X::Estimator)
 end
 function sweep_diag!(H::OpString,
     n::Int64, β::Float64, ξ::Float64, μ::Float64,
-    legs_first::Matrix{Leg},legs_last::Matrix{Leg},
+    legs_first::Matrix{MaybeLeg}, legs_last::Matrix{MaybeLeg},
     ψ0::Matrix{Bool}
     )
     L::Tuple{Int,Int} = size(ψ0)
     N::Int = length(ψ0)
     Λ::Int = length(H)
-    # iwl::Int = rand(eachindex(ψ0))
     
-    # ic::Int = 0 # index of center
     w::Float64 = 0.
-    l::Leg = null_leg
-
     Sz::Int = sum(ψ0)
     Sz1::Int = 0
     Sz2::Int = 0
 
-    for i ∈ eachindex(legs_first, legs_last)
-        legs_first[i] = legs_last[i] = null_leg
-    end
+    fill!(legs_first, nothing)
+    fill!(legs_last, nothing)
+
     @inbounds for h ∈ H
         # insert diagonal operator
         if h.flag == 0
@@ -86,19 +75,19 @@ function sweep_diag!(H::OpString,
         # 更新传播过程中的构型(linklist)
         if h.flag ≠ 0
             for (r, j) ∈ enumerate(udlrx(abs(h.flag), L))
-                l = h[r]
+                l::Leg = h[r]
                 l.j = j
                 l.ψ = ψ0[j]
-                if legs_first[j] === null_leg
-                    legs_first[j] = l
+                if legs_first[j] |> isnothing
                     legs_last[j] = l
-                    l.prev = l
-                    l.next = l
+                    legs_first[j] = l
+                    # l.prev = l
+                    # l.next = l
                 else
                     l.prev = legs_last[j]
-                    l.next = legs_first[j]
+                    # l.next = legs_first[j]
                     legs_last[j].next = l
-                    legs_first[j].prev = l
+                    # legs_first[j].prev = l
                     legs_last[j] = l
                 end
             end
@@ -106,6 +95,12 @@ function sweep_diag!(H::OpString,
         # ψT[p] = ψ0[iwl] # record only one boson world-line
         Sz1 += Sz
         Sz2 += Sz^2
+    end
+    for (leg_first,leg_last) ∈ zip(legs_first,legs_last)
+        if leg_first isa Leg && leg_last isa Leg
+            leg_first.prev = leg_last
+            leg_last.next = leg_first
+        end
     end
     return n, Sz1/Λ, Sz2/Λ
 end
@@ -118,6 +113,7 @@ function wf2wi_tailhead(l::Leg, ξ::Float64, μ::Float64, istail::Bool)::Float64
     wμj::Float64 = diag_weight(ψ0, μ)
     return l.flag < 0 ? (wμj / wσx) : (wσx / wμj)
 end
+
 function wf2wi_wormbody(l::Leg, ξ::Float64)::Float64
     if l.flag > 0
         return 1.0
@@ -126,13 +122,11 @@ function wf2wi_wormbody(l::Leg, ξ::Float64)::Float64
         cf::Int = ci + (l.ψ ? -1 : +1)
         wi::Float64 = offdiag_weight(ci, ξ)
         wf::Float64 = offdiag_weight(cf, ξ)
-        # println(confsign(l.op, l.r))
-        # println("wf=$(wf), wi=$(wi), flag=$(l.flag)")
-        return wf / wi
+        return wf/wi
     end
 end
 
-function wf2wi_cyclic(l::Leg, μ::Float64)
+function wf2wi_cyclic(l::Leg, μ::Float64)::Float64
     if l.flag < 0
         return 1.0
     else
@@ -157,7 +151,7 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
             break
         else
             wr *= wf2wi_wormbody(head, ξ)
-            if wr == 0 return false end
+            if iszero(wr) return false end
         end
     end
 
@@ -190,16 +184,11 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     return false
 end
 
-function sweep_off!(X::Estimator)
-    sweep_off!(X.H, X.ξ, X.μ)
-    update_ψ0!(X.ψ0, X.legs_last)
-end
-
-function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    @inbounds for h ∈ H
-        update_ahead!(h, ξ, μ)
-    end
-end
+# function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
+#     @inbounds for h ∈ H
+#         update_ahead!(h, ξ, μ)
+#     end
+# end
 
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     wl = eachindex(H)
@@ -209,9 +198,11 @@ function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
             H[rand((i,j,rand(wl)))],
             ξ, μ)
     end
+    return nothing
 end
-# function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-#     @inbounds for h ∈ H
-#         update_ahead!(h, ξ, μ)
-#     end
-# end
+
+function sweep_off!(X::Estimator)
+    sweep_off!(X.H, X.ξ, X.μ)
+    update_ψ0!(X.ψ0, X.legs_last)
+    return nothing
+end

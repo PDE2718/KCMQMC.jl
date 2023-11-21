@@ -1,7 +1,7 @@
 mutable struct Estimator
     const H::OpString
-    const legs_first::Matrix{Leg}
-    const legs_last::Matrix{Leg}
+    const legs_first::Matrix{MaybeLeg}
+    const legs_last::Matrix{MaybeLeg}
     const ψ0::Matrix{Bool}
     const ψt::Matrix{Bool}
     ######################## numbers
@@ -18,7 +18,7 @@ mutable struct Estimator
 end
 function Estimator(ψ0::Matrix{Bool}, Λ0::Int64)
     return Estimator(
-        [Op(i) for i ∈ 1:Λ0],
+        OpString[Op(i) for i ∈ 1:Λ0],
         null_legs(ψ0),
         null_legs(ψ0),
         deepcopy(ψ0),
