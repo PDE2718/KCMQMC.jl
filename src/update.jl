@@ -184,22 +184,22 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     return false
 end
 
-# function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-#     @inbounds for h ∈ H
-#         update_ahead!(h, ξ, μ)
-#     end
-# end
-
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    wl = eachindex(H)
-    l = zip(wl , reverse(wl))
-    @inbounds for (i,j) ∈ l
-        update_ahead!(
-            H[rand((i,j,rand(wl)))],
-            ξ, μ)
+    @inbounds for h ∈ H
+        update_ahead!(h, ξ, μ)
     end
-    return nothing
 end
+
+# function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
+#     wl = eachindex(H)
+#     l = zip(wl , reverse(wl))
+#     @inbounds for (i,j) ∈ l
+#         update_ahead!(
+#             H[rand((i,j,rand(wl)))],
+#             ξ, μ)
+#     end
+#     return nothing
+# end
 
 function sweep_off!(X::Estimator)
     sweep_off!(X.H, X.ξ, X.μ)
