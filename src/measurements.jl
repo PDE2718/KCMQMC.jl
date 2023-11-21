@@ -27,7 +27,7 @@ end
 function onestep_measure!(X::Estimator, O::Obs;
     track_trace::Bool=false,
     take_snapshot::Bool=false,
-    record_leaf::Bool=false,
+    # record_leaf::Bool=false,
     )
     ψ0, ψk, Sk, β, ξ, μ = X.ψ0, X.ψk, X.Sk, X.β, X.ξ, X.μ
 
@@ -58,10 +58,10 @@ function onestep_measure!(X::Estimator, O::Obs;
     if take_snapshot
         push!(O.ψsnapshots, X.ψ0 .== true)
     end 
-    if record_leaf
-        ρflip, ρleaf = obs_leaves(ψ0)
-        push!(O.ρleaf, ρleaf) ; push!(O.ρflip, ρflip)
-    end
+    # if record_leaf
+    #     ρflip, ρleaf = obs_leaves(ψ0)
+    #     push!(O.ρleaf, ρleaf) ; push!(O.ρflip, ρflip)
+    # end
     return nothing
 end
 
