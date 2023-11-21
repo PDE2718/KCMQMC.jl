@@ -18,7 +18,7 @@ mutable struct Estimator
 end
 function Estimator(ψ0::Matrix{Bool}, Λ0::Int64)
     return Estimator(
-        OpString[Op(i) for i ∈ 1:Λ0],
+        [Op(i) for i ∈ 1:Λ0],
         null_legs(ψ0),
         null_legs(ψ0),
         deepcopy(ψ0),

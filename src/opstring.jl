@@ -82,7 +82,7 @@ end
 # global const null_leg::Leg = Leg(0)
 MaybeLeg::Type = Union{Leg, Nothing}
 OpString::Type = Vector{Op{Leg}}
-null_legs(ψ0::AbstractArray{Bool}) = MaybeLeg[nothing for _ ∈ ψ0]
+null_legs(ψ0::AbstractArray{Bool})::AbstractArray{MaybeLeg} = MaybeLeg[nothing for _ ∈ ψ0]
 
 ## How to display the OpString
 function Base.show(io::IO, l::Leg)
