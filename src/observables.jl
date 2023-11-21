@@ -22,6 +22,6 @@ Base.@kwdef struct Obs
     ψsnapshots::Vector{BitMatrix} = BitMatrix[]
 end
 
-Obs(X::Estimator, t::Int64=0) = Obs(t,
-    L=size(X.ψ0), β=X.β, ξ=X.ξ, μ=X.μ
+Obs(X::Estimator, t::Int64=0) = Obs(
+    t=t, L=size(X.ψ0), β=X.β, ξ=X.ξ, μ=X.μ
 )
