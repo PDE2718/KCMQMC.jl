@@ -17,7 +17,6 @@ end
 
 function track_trace!(X::Estimator, O::Obs)
     push!(O.ρtrace, X.Sz1 / prod(O.L))
-    push!(O.nwltrace, X.n)
 end
 function snapshot_ψ!(X::Estimator, O::Obs)
     push!(O.ψsnapshots, X.ψ0 .== true)
@@ -37,7 +36,7 @@ function onestep_measure!(X::Estimator, O::Obs;
     nwl1::Int64 = X.n ; push!(O.nwl1, nwl1)
     E = - nwl1 / β / N + μshift(μ) ; push!(O.E,E)
     # for specific heat
-    nwl2::Int64 = nwl1^2 ; push!(O.nwl2, nwl2)
+    nwl2::Int64 = abs2(nwl1); push!(O.nwl2, nwl2)
 
     # magnetization
     Sz1 = X.Sz1 ; push!(O.Sz1, Sz1) ; push!(O.Sz2, X.Sz2)
@@ -53,7 +52,6 @@ function onestep_measure!(X::Estimator, O::Obs;
     # record optional date
     if track_trace
         push!(O.ρtrace, ρ)
-        push!(O.nwltrace, X.n)
     end
     if take_snapshot
         push!(O.ψsnapshots, X.ψ0 .== true)
