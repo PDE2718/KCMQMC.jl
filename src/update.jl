@@ -13,6 +13,17 @@ function clear_string!(H::OpString)
     return nothing
 end
 
+function clear_estimator!(X::Estimator, ψ00::Matrix{Bool})
+    X.ψ0 .= ψ00
+    for h ∈ X.H
+        h.flag = 0
+    end
+    for i ∈ eachindex(X.legs_first, X.legs_last)
+        X.legs_first[i] = X.legs_last[i] = null_leg
+    end
+    return nothing
+end
+
 ###### diag update
 # the shift const : μ>0 => 1 ; μ<0 => 1-μ
 μshift(μ::Float64)::Float64 = μ < 0.0 ? (1.0 - μ) : 1.0
