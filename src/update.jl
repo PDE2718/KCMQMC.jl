@@ -12,7 +12,7 @@ function clear_estimator!(X::Estimator, ψ00::Matrix{Bool})
     for h ∈ X.H
         h.flag = 0
     end
-    for i ∈ zip(X.legs_first, X.legs_last)
+    for i ∈ eachindex(X.legs_first, X.legs_last)
         X.legs_first[i] = X.legs_last[i] = nothing
     end
     return nothing
