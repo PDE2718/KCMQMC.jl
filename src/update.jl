@@ -15,6 +15,7 @@ end
 
 function clear_estimator!(X::Estimator, ψ00::Matrix{Bool})
     X.ψ0 .= ψ00
+    X.n = 0
     for h ∈ X.H
         h.flag = 0
     end
