@@ -6,8 +6,6 @@ Base.@kwdef struct Obs
     β::Float64
     ξ::Float64
     μ::Float64
-    # N::Int64 = prod(L)
-    # nwltrace::Vector{Int64} = Int64[]
     E::Accum{Float64} = Accum(0.0)
     ρ::Accum{Float64} = Accum(0.0)
     nwl1::Accum{Int64} = Accum(0)

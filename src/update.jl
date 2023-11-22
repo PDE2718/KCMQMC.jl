@@ -187,10 +187,16 @@ end
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     @inbounds for h ∈ H
         update_ahead!(h, ξ, μ)
-        update_ahead!(rand(H), ξ, μ)
     end
 end
 
+function sweep_off!(X::Estimator)
+    sweep_off!(X.H, X.ξ, X.μ)
+    update_ψ0!(X.ψ0, X.legs_last)
+    return nothing
+end
+
+# not used version
 # function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
 #     wl = eachindex(H)
 #     l = zip(wl , reverse(wl))
@@ -201,9 +207,3 @@ end
 #     end
 #     return nothing
 # end
-
-function sweep_off!(X::Estimator)
-    sweep_off!(X.H, X.ξ, X.μ)
-    update_ψ0!(X.ψ0, X.legs_last)
-    return nothing
-end
