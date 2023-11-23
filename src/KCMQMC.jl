@@ -3,7 +3,6 @@ module KCMQMC
 using LinearAlgebra, FFTW
 include("utils.jl")
 include("lattice.jl")
-include("tempering.jl")
 include("opstring.jl")
 include("estimator.jl")
 include("update.jl")
