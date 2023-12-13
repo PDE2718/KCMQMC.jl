@@ -156,6 +156,7 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
 
     if head == tail
+        return false
         if iszero(ξ) && count(head) ≠ 1
             return false
         else
