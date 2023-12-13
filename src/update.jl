@@ -186,7 +186,7 @@ end
 
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     @inbounds for h ∈ H
-        if rand(0.5)
+        if rand(0.5) |> metro
             update_ahead!(h, ξ, μ)
         end
     end
