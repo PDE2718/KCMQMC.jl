@@ -185,10 +185,14 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
 end
 
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    @inbounds for h ∈ H
-        if metro(0.5)
-            update_ahead!(h, ξ, μ)
-        end
+    # @inbounds for h ∈ H
+    #     if metro(0.5)
+    #         update_ahead!(h, ξ, μ)
+    #         update_ahead!(rand(H), ξ, μ)
+    #     end
+    # end
+    @inbounds for i ∈ eachindex(H)
+        update_ahead!(rand(H), ξ, μ)
     end
 end
 
