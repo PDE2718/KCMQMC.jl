@@ -186,7 +186,9 @@ end
 
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     @inbounds for h ∈ H
-        update_ahead!(h, ξ, μ)
+        if rand(0.5)
+            update_ahead!(h, ξ, μ)
+        end
     end
 end
 
