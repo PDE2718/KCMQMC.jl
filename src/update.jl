@@ -128,7 +128,7 @@ end
 
 function wf2wi_cyclic(l::Leg, μ::Float64)::Float64
     if l.flag < 0
-        return 0.0
+        return 1.0
     else
         ψ = l.ψ
         wi = diag_weight(ψ, μ)
@@ -156,11 +156,11 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
 
     if head == tail
-        if iszero(ξ) && count(head) ≠ 1
-            return false
-        else
-            wr *= wf2wi_cyclic(head, μ)
-        end
+        # if iszero(ξ) && count(head) ≠ 1
+        #     return false
+        # else
+        wr *= wf2wi_cyclic(head, μ)
+        # end
     else
         wr *= wf2wi_tailhead(tail, ξ, μ, true)
         wr *= wf2wi_tailhead(head, ξ, μ, false)
