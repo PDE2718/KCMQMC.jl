@@ -173,7 +173,7 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
 
     # now flip the segment
-    if metro(wr)
+    if metro(wr * 0.9)
         ## finally update the configuration
         head.flag *= -1
         tail.flag *= -1
