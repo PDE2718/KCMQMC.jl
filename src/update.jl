@@ -138,20 +138,33 @@ function wf2wi_head(l::Leg, ξ::Float64, μ::Float64)::Float64
     end
 end
 
-function wf2wi_wormbody(l::Leg, ξ::Float64, μ::Float64)::Float64
-    @assert ~is_center(l)
+function wf2wi_wormbody_side(l::Leg, ξ::Float64, μ::Float64)::Float64
     if is_diag(l)
         return 1.0
+    elseif iszero(ξ)
+        return 0.0
     else
         ψ = l.ψ
         ci::Int = count(l)
         cf::Int = ci + (~ψ) - ψ
         wi::Float64 = offdiag_weight(ci, ξ)
         wf::Float64 = offdiag_weight(cf, ξ)
-        return wf/wi
+        return wf / wi
     end
 end
 
+function wf2wi_wormbody_center(l::Leg, ξ::Float64, μ::Float64)::Float64
+    if is_diag(l)
+        ψ = l.ψ
+        wi::Float64 = diag_weight(ψ, μ)
+        wf::Float64 = diag_weight(~ψ, μ)
+        return wf / wi
+    else
+        return 1.0
+    end
+end
+
+# [TODO] is this case diag only?
 function wf2wi_cyclic(l::Leg, ξ::Float64, μ::Float64)::Float64
     @assert is_center(l)
     @assert is_diag(l)
@@ -179,25 +192,33 @@ function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
     # Find the worm body
     while true
         head = head.next
-        if is_center(head) # end this segment anyway
-            break
-        else
-            wr *= wf2wi_wormbody(head, ξ, μ)
+
+        # flip a ring
+        if head == tail
+            if count(head) ≠ 1
+                return false
+            else
+                wr *= wf2wi_cyclic(head, ξ, μ)
+                if iszero(wr) return false end
+            end
+
+        elseif is_center(head)
+            if rand(Bool) # randomly continue such segment
+                wr *= wf2wi_wormbody_center(head, ξ, μ)
+                if iszero(wr) return false end
+            else # otherwise end it
+                wr *= wf2wi_tail(tail, ξ, μ)
+                if iszero(wr) return false end
+                wr *= wf2wi_head(head, ξ, μ)
+                if iszero(wr) return false end
+            end
+        
+        else # if such a th
+            wr *= wf2wi_wormbody_side(head, ξ, μ)
             if iszero(wr) return false end
         end
     end
 
-    if head == tail
-        if count(head) ≠ 1
-            return false
-        else
-            wr *= wf2wi_cyclic(head, ξ, μ)
-        end
-    else
-        wr *= wf2wi_tail(tail, ξ, μ)
-        wr *= wf2wi_head(head, ξ, μ)
-        if iszero(wr) return false end
-    end
 
     # now flip the segment
     if metro(wr)
