@@ -118,8 +118,8 @@ end
 
 function wf2wi_tail(l::Leg, ξ::Float64, μ::Float64)::Float64
     @assert is_center(l)
-    ψ = l.ψ
-    c = count(l)
+    ψ::Bool = l.ψ
+    c::Int = count(l)
     if is_diag(l)
         return offdiag_weight(c, ξ) / diag_weight(ψ, μ)
     else
@@ -129,8 +129,8 @@ end
 
 function wf2wi_head(l::Leg, ξ::Float64, μ::Float64)::Float64
     @assert is_center(l)
-    ψ = l.ψ
-    c = count(l)
+    ψ::Bool = l.ψ
+    c::Int = count(l)
     if is_diag(l)
         return offdiag_weight(c, ξ) / diag_weight(ψ, μ)
     else
@@ -143,7 +143,7 @@ function wf2wi_wormbody_side(l::Leg, ξ::Float64, μ::Float64)::Float64
         return 1.0
     elseif iszero(ξ)
         return 0.0
-    else
+    else #(if σx)
         ψ = l.ψ
         ci::Int = count(l)
         cf::Int = ci + (~ψ) - ψ
@@ -160,7 +160,7 @@ function wf2wi_wormbody_center(l::Leg, ξ::Float64, μ::Float64)::Float64
         wf::Float64 = diag_weight(~ψ, μ)
         return wf / wi
     else
-        return 1.0
+        return iszero(ξ) ? 0.0 : 1.0
     end
 end
 
