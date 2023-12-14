@@ -200,24 +200,25 @@ function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
             else
                 wr *= wf2wi_cyclic(head, ξ, μ)
                 if iszero(wr) return false end
+                break
             end
-            break
 
         elseif is_center(head)
             if rand(Bool) # randomly continue such segment
                 wr *= wf2wi_wormbody_center(head, ξ, μ)
                 if iszero(wr) return false end
+                continue
             else # otherwise end it
                 wr *= wf2wi_tail(tail, ξ, μ)
                 if iszero(wr) return false end
                 wr *= wf2wi_head(head, ξ, μ)
                 if iszero(wr) return false end
+                break
             end
-            break
-
         else # if such a th
             wr *= wf2wi_wormbody_side(head, ξ, μ)
             if iszero(wr) return false end
+            continue
         end
     end
 
@@ -230,7 +231,7 @@ function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
             tail.ψ ⊻= true
             tail = tail.next
             if tail == head
-                return break
+                break
             end
         end
         return true
