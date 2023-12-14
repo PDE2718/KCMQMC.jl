@@ -167,11 +167,14 @@ end
 # [TODO] is this case diag only?
 function wf2wi_cyclic(l::Leg, ξ::Float64, μ::Float64)::Float64
     @assert is_center(l)
-    @assert is_diag(l)
-    ψ = l.ψ
-    wi = diag_weight(ψ, μ)
-    wf = diag_weight(~ψ, μ)
-    return wf / wi
+    if is_diag(l)
+        ψ = l.ψ
+        wi = diag_weight(ψ, μ)
+        wf = diag_weight(~ψ, μ)
+        return wf / wi
+    else
+        return 1.
+    end
 end
 
 function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
