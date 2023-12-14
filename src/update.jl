@@ -201,6 +201,7 @@ function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
                 wr *= wf2wi_cyclic(head, ξ, μ)
                 if iszero(wr) return false end
             end
+            break
 
         elseif is_center(head)
             if rand(Bool) # randomly continue such segment
@@ -212,13 +213,13 @@ function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
                 wr *= wf2wi_head(head, ξ, μ)
                 if iszero(wr) return false end
             end
-        
+            break
+
         else # if such a th
             wr *= wf2wi_wormbody_side(head, ξ, μ)
             if iszero(wr) return false end
         end
     end
-
 
     # now flip the segment
     if metro(wr)
