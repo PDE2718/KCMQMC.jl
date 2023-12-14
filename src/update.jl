@@ -85,9 +85,9 @@ function sweep_diag!(H::OpString,
                     # l.next = l
                 else
                     l.prev = legs_last[j]
-                    # l.next = legs_first[j]
+                    l.next = legs_first[j]
                     legs_last[j].next = l
-                    # legs_first[j].prev = l
+                    legs_first[j].prev = l
                     legs_last[j] = l
                 end
             end
@@ -173,7 +173,7 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
     end
 
     # now flip the segment
-    if metro(wr * 0.9)
+    if metro(wr)
         ## finally update the configuration
         head.flag *= -1
         tail.flag *= -1
@@ -191,15 +191,15 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
 end
 
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
-    # @inbounds for h ∈ H
-    #     if metro(0.5)
-    #         update_ahead!(h, ξ, μ)
-    #         update_ahead!(rand(H), ξ, μ)
-    #     end
-    # end
-    @inbounds for i ∈ eachindex(H)
-        update_ahead!(rand(H), ξ, μ)
+    @inbounds for h ∈ H
+        if metro(0.5)
+            update_ahead!(h, ξ, μ)
+            update_ahead!(rand(H), ξ, μ)
+        end
     end
+    # @inbounds for i ∈ eachindex(H)
+    #     update_ahead!(rand(H), ξ, μ)
+    # end
 end
 
 function sweep_off!(X::Estimator)
