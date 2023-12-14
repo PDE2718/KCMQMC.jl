@@ -22,7 +22,7 @@ end
 # the shift const : μ>0 => 1 ; μ<0 => 1-μ
 μshift(μ::Float64)::Float64 = μ < 0.0 ? (1.0 - μ) : 1.0
 diag_weight(ψ::Bool, μ::Float64)::Float64 = μshift(μ) + μ * ψ
-offdiag_weight(cnt::Int, ξ::Float64)::Float64 = cnt == 1 ? (1.0-ξ) : ξ
+offdiag_weight(cnt::Int, ξ::Float64)::Float64 = cnt == 0 ? (1.0-ξ) : ξ
 
 function sweep_diag!(X::Estimator)
     X.n, X.Sz1, X.Sz2 = sweep_diag!(X.H,
