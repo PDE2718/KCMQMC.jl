@@ -107,41 +107,73 @@ end
 
 ####### off diag update
 
-function wf2wi_tailhead(l::Leg, ξ::Float64, μ::Float64, istail::Bool)::Float64
-    ψ0::Bool = l.ψ ⊻ (istail && l.flag < 0)
-    wσx::Float64 = offdiag_weight(count(l), ξ)
-    wμj::Float64 = diag_weight(ψ0, μ)
-    return l.flag < 0 ? (wμj / wσx) : (wσx / wμj)
+# function wf2wi_tailhead(l::Leg, ξ::Float64, μ::Float64, istail::Bool)::Float64
+#     # ψf::Bool = l.ψ ⊻ (istail && l.flag < 0) # original
+#     @assert is_center(l)
+#     ψf::Bool = l.ψ ⊻ istail
+#     wσx::Float64 = offdiag_weight(count(l), ξ)
+#     wμj::Float64 = diag_weight(ψf, μ)
+#     return l.flag < 0 ? (wμj / wσx) : (wσx / wμj)
+# end
+
+function wf2wi_tail(l::Leg, ξ::Float64, μ::Float64)::Float64
+    @assert is_center(l)
+    ψ = l.ψ
+    c = count(l)
+    if is_diag(l)
+        return offdiag_weight(c, ξ) / diag_weight(ψ, μ)
+    else
+        return diag_weight(~ψ, μ) / offdiag_weight(c, ξ)
+    end
 end
 
-function wf2wi_wormbody(l::Leg, ξ::Float64)::Float64
-    if l.flag > 0
+function wf2wi_head(l::Leg, ξ::Float64, μ::Float64)::Float64
+    @assert is_center(l)
+    ψ = l.ψ
+    c = count(l)
+    if is_diag(l)
+        return offdiag_weight(c, ξ) / diag_weight(ψ, μ)
+    else
+        return diag_weight(ψ, μ) / offdiag_weight(c, ξ)
+    end
+end
+
+function wf2wi_wormbody(l::Leg, ξ::Float64, μ::Float64)::Float64
+    @assert ~is_center(l)
+    if is_diag(l)
         return 1.0
     else
+        ψ = l.ψ
         ci::Int = count(l)
-        cf::Int = ci + (l.ψ ? -1 : +1)
+        cf::Int = ci + (~ψ) - ψ
         wi::Float64 = offdiag_weight(ci, ξ)
         wf::Float64 = offdiag_weight(cf, ξ)
         return wf/wi
     end
 end
 
-function wf2wi_cyclic(l::Leg, μ::Float64)::Float64
-    if l.flag < 0
-        return 1.0
-    else
-        ψ = l.ψ
-        wi = diag_weight(ψ, μ)
-        wf = diag_weight(~ψ, μ)
-        return wf/wi
-    end
+function wf2wi_cyclic(l::Leg, ξ::Float64, μ::Float64)::Float64
+    @assert is_center(l)
+    @assert is_diag(l)
+    ψ = l.ψ
+    wi = diag_weight(ψ, μ)
+    wf = diag_weight(~ψ, μ)
+    return wf / wi
 end
 
-function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
+function update_ahead!(l0::Leg, ξ::Float64, μ::Float64)::Bool
     # ensure the entrance is a center
-    # I0 cannot flip
-    if h0.flag == 0 return false end
-    tail::Leg = head::Leg = h0[5]
+    
+    if l0.flag == 0 return false end
+    tail::Leg = l0
+    while ~is_center(tail)
+        tail = tail.prev
+        if tail == l0
+            return false
+        end
+    end
+    # now tail is center
+    head::Leg = tail
     wr::Float64 = 1.0
     
     # Find the worm body
@@ -150,26 +182,21 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
         if is_center(head) # end this segment anyway
             break
         else
-            wr *= wf2wi_wormbody(head, ξ)
+            wr *= wf2wi_wormbody(head, ξ, μ)
             if iszero(wr) return false end
         end
     end
 
     if head == tail
-        # if iszero(ξ) && count(head) ≠ 1
-        #     return false
-        # else
-        #     wr *= wf2wi_cyclic(head, μ)
-        # end
-        @assert head.flag > 0
         if count(head) ≠ 1
             return false
         else
-            wr *= wf2wi_cyclic(head, μ)
+            wr *= wf2wi_cyclic(head, ξ, μ)
         end
     else
-        wr *= wf2wi_tailhead(tail, ξ, μ, true)
-        wr *= wf2wi_tailhead(head, ξ, μ, false)
+        wr *= wf2wi_tail(tail, ξ, μ)
+        wr *= wf2wi_head(head, ξ, μ)
+        if iszero(wr) return false end
     end
 
     # now flip the segment
@@ -181,21 +208,22 @@ function update_ahead!(h0::Op{Leg}, ξ::Float64, μ::Float64)::Bool
             tail.ψ ⊻= true
             tail = tail.next
             if tail == head
-                return true
+                return break
             end
         end
+        return true
     else
         return false
     end
-    return false
 end
 
 function sweep_off!(H::OpString, ξ::Float64, μ::Float64)
     @inbounds for h ∈ H
-        if metro(0.5)
-            update_ahead!(h, ξ, μ)
-            update_ahead!(rand(H), ξ, μ)
-        end
+        update_ahead!(h[rand(1:5)], ξ, μ)
+        # if metro(0.5)
+        #     update_ahead!(h, ξ, μ)
+        #     update_ahead!(rand(H), ξ, μ)
+        # end
     end
     # @inbounds for i ∈ eachindex(H)
     #     update_ahead!(rand(H), ξ, μ)

@@ -49,6 +49,7 @@ getproperty(x::Leg, y::Symbol) = hasfield(Leg, y) ? getfield(x, y) : getfield(ge
 setproperty!(x::Leg, y::Symbol, z) = hasfield(Leg, y) ? setfield!(x::Leg, y::Symbol, z) : setfield!(getfield(x, :op), y, z)
 
 is_center(l::Leg)::Bool = l.r == 5
+is_diag(l::Leg)::Bool = l.flag > 0
 # is_σx(op::Op{Leg})::Bool = op.flag < 0
 
 ## change here to modify xor(n)
