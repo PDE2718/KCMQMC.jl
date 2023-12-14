@@ -81,8 +81,8 @@ function sweep_diag!(H::OpString,
                 if legs_first[j] |> isnothing
                     legs_last[j] = l
                     legs_first[j] = l
-                    # l.prev = l
-                    # l.next = l
+                    l.prev = l #
+                    l.next = l #
                 else
                     l.prev = legs_last[j]
                     l.next = legs_first[j]
@@ -96,12 +96,12 @@ function sweep_diag!(H::OpString,
         Sz1 += Sz
         Sz2 += Sz^2
     end
-    for (leg_first,leg_last) ∈ zip(legs_first,legs_last)
-        if leg_first isa Leg && leg_last isa Leg
-            leg_first.prev = leg_last
-            leg_last.next = leg_first
-        end
-    end
+    # for (leg_first,leg_last) ∈ zip(legs_first,legs_last)
+    #     if leg_first isa Leg && leg_last isa Leg
+    #         leg_first.prev = leg_last
+    #         leg_last.next = leg_first
+    #     end
+    # end
     return n, Sz1/Λ, Sz2/Λ
 end
 
