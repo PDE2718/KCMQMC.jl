@@ -24,7 +24,7 @@ function Estimator(ψ0::Matrix{Bool}, Λ0::Int64)
         deepcopy(ψ0),
         deepcopy(ψ0),
         #
-        1, 0.0, 0.0, 0.0,
+        0, 0.0, 0.0, 0.0,
         #
         0.0, 0.0,
         # 
