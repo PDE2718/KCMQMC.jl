@@ -36,23 +36,22 @@ end
 @inline udlrx(i::Int, L::Tuple{Int,Int})::NTuple{5,Int} = udlrx(i, L[1], L[2])
 @inline udlrx(i::Int, L::Int)::NTuple{5,Int} = udlrx(i, L, L)
 
-function randsector(L::Tuple{Int64,Int64}, Nseed::Int64)
-    N = prod(L)
-    lattice = CartesianIndices(L)
-    sector = CartesianIndex{2}[]
-    nlist = Int64[]
-    for i ∈ 1:Nseed
-        for (j, q) ∈ enumerate(udlrx(rand(1:N), L))
-            if q ∈ nlist
-                return randsector(L, Nseed)
-            else
-                push!(nlist, q)
-            end
-            if j == 5
-                push!(sector, lattice[q])
-            end
-        end
-    end
-    return (sector...,)
-end
-randsector(L0::Int64, Nseed::Int64) = randsector((L0,L0), Nseed)
+# function randsector(L::Tuple{Int64,Int64}, Nseed::Int64)
+#     N = prod(L)
+#     lattice = CartesianIndices(L)
+#     sector = CartesianIndex{2}[]
+#     nlist = Int64[]
+#     for i ∈ 1:Nseed
+#         for (j, q) ∈ enumerate(udlrx(rand(1:N), L))
+#             if q ∈ nlist
+#                 return randsector(L, Nseed)
+#             else
+#                 push!(nlist, q)
+#             end
+#             if j == 5
+#                 push!(sector, lattice[q])
+#             end
+#         end
+#     end
+#     return (sector...,)
+# end

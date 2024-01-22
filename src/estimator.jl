@@ -32,4 +32,3 @@ function Estimator(ψ0::Matrix{Bool}, Λ0::Int64)
         zeros(Float64, size(ψ0)),
     )
 end
-

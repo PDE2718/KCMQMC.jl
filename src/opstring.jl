@@ -106,10 +106,10 @@ function Base.show(io::IO, O::Op{Leg})
     end
 end
 
-confsign(ψ::Bool, c::Bool) = c ? (ψ ? '⬓' : '⬒') : (ψ ? '■' : '□')
-confsign(l::Leg, c::Bool) = confsign(l.ψ, c)
-confsign(x::Op{Leg}, r::Int)::String = """
-    ⋅ $(confsign(x[1], 1==r)) ⋅
-    $(confsign(x[3], 3==r)) $(confsign(x[5], 5==r)) $(confsign(x[4], 4==r))
-    ⋅ $(confsign(x[2], 2==r)) ⋅
-"""
+# confsign(ψ::Bool, c::Bool) = c ? (ψ ? '⬓' : '⬒') : (ψ ? '■' : '□')
+# confsign(l::Leg, c::Bool) = confsign(l.ψ, c)
+# confsign(x::Op{Leg}, r::Int)::String = """
+#     ⋅ $(confsign(x[1], 1==r)) ⋅
+#     $(confsign(x[3], 3==r)) $(confsign(x[5], 5==r)) $(confsign(x[4], 4==r))
+#     ⋅ $(confsign(x[2], 2==r)) ⋅
+# """
